@@ -91,6 +91,7 @@ def kill(the_uuid):
 
 def run_demo():
     device = f"cuda:{_GPU_INDEX}"
+    os.system("rm -rf .tasks")
     # load both base & refiner
     base = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
