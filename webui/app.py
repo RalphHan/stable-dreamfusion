@@ -1,11 +1,6 @@
 import os
-import torch
-from diffusers import DiffusionPipeline
 import gradio as gr
-from functools import partial
 import uuid
-
-_GPU_INDEX = 0
 
 _TITLE = '''Text-to-3D App built by SeedV Lab'''
 
@@ -16,19 +11,12 @@ We use SDXL 1.0 to generate image, and use Zero123 to synthesize 3D object
 python_path = "venv_stable-dreamfusion/bin/python"
 
 
-def stage1(base, refiner, prompt):
-    image = base(
-        prompt=prompt,
-        output_type="latent",
-    ).images
-    image = refiner(
-        prompt=prompt,
-        image=image,
-    ).images[0]
+def stage1(prompt):
     os.makedirs("data/gradio", exist_ok=True)
     the_uuid = str(uuid.uuid4())
-    image.save(f"data/gradio/{the_uuid}.png")
-    return image, the_uuid
+    save_path=f"data/gradio/{the_uuid}.png"
+    os.system(f"{python_path} sdxl_infer.py \"{prompt}\" {save_path}")
+    return save_path, the_uuid
 
 
 def stage2(image, the_uuid):
@@ -69,21 +57,6 @@ def kill_all():
 
 
 def run_demo():
-    device = f"cuda:{_GPU_INDEX}"
-    # load both base & refiner
-    base = DiffusionPipeline.from_pretrained(
-        "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
-    )
-    base.to(device)
-    refiner = DiffusionPipeline.from_pretrained(
-        "stabilityai/stable-diffusion-xl-refiner-1.0",
-        text_encoder_2=base.text_encoder_2,
-        vae=base.vae,
-        torch_dtype=torch.float16,
-        use_safetensors=True,
-        variant="fp16",
-    )
-    refiner.to(device)
     # Compose demo layout & data flow.
     css = "#model-3d-out {height: 400px;} #plot-out {height: 450px;}"
     with gr.Blocks(title=_TITLE, css=css).queue(concurrency_count=1) as demo:
@@ -112,7 +85,7 @@ def run_demo():
             video_dmtet = gr.Video(format="mp4", autoplay=True)
             mesh = gr.File(label="Download 3D Object")
 
-        btn_sdxl.click(fn=partial(stage1, base, refiner), inputs=[prompt], outputs=[image, the_uuid], queue=False)
+        btn_sdxl.click(fn=stage1, inputs=[prompt], outputs=[image, the_uuid], queue=False)
         btn_dreamfusion.click(lambda: gr.update(interactive=False), outputs=btn_sdxl, queue=False
                               ).success(fn=stage2, inputs=[image, the_uuid], outputs=[image_nobg, the_uuid]
                                         ).success(fn=stage3, inputs=[h_w, iters, the_uuid], outputs=[video]
