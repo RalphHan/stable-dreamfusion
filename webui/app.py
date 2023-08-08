@@ -49,7 +49,9 @@ def stage4(h_w, iters, the_uuid):
         -1]
     full_video_name = os.path.join(f"results/gradio/{the_uuid}_dmtet/results/", video_name)
     os.system(f"cd results/gradio/{the_uuid}_dmtet/mesh/ && zip -v mesh.zip *")
-    return full_video_name, f"results/gradio/{the_uuid}_dmtet/mesh/mesh.zip"
+    os.makedirs("results/gradio_bk", exist_ok=True)
+    os.system(f"mv results/gradio/{the_uuid}_dmtet/mesh/mesh.zip results/gradio_bk/{the_uuid}_dmtet_mesh.zip")
+    return full_video_name, f"results/gradio_bk/{the_uuid}_dmtet_mesh.zip"
 
 
 def kill_all():
