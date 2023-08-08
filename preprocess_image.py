@@ -1,5 +1,7 @@
 import os
 import sys
+from setproctitle import setproctitle
+setproctitle('stable-dreamfusion')
 import cv2
 import argparse
 import numpy as np

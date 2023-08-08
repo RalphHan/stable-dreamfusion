@@ -36,39 +36,26 @@ def stage2(image, the_uuid):
         os.makedirs("data/gradio", exist_ok=True)
         the_uuid = str(uuid.uuid4())
         image.save(f"data/gradio/{the_uuid}.png")
-    os.makedirs(".tasks/running", exist_ok=True)
-    os.system(f"touch .tasks/running/{the_uuid}")
     os.system(f"{python_path} preprocess_image.py data/gradio/{the_uuid}.png")
     return f"data/gradio/{the_uuid}_rgba.png", the_uuid
 
 
 def stage3(h_w, iters, the_uuid):
-    if os.path.exists(f".tasks/stop/{the_uuid}"):
-        os.remove(f".tasks/stop/{the_uuid}")
-        raise Exception("Stopped")
     ret_code = os.system(f"UUID={the_uuid} {python_path} main.py -O --h {h_w} --w {h_w} "
                          f"--image data/gradio/{the_uuid}_rgba.png "
                          f"--workspace results/gradio/{the_uuid} --iters {iters} --save_mesh")
-    if ret_code != 0:
-        os.remove(f".tasks/stop/{the_uuid}")
-        raise Exception("Error in stage3")
+    assert ret_code == 0, "Error in stage3"
     video_name = sorted([x for x in os.listdir(f"results/gradio/{the_uuid}/results/") if x.endswith("_rgb.mp4")])[-1]
     full_video_name = os.path.join(f"results/gradio/{the_uuid}/results/", video_name)
     return full_video_name
 
 
 def stage4(h_w, iters, the_uuid):
-    if os.path.exists(f".tasks/stop/{the_uuid}"):
-        os.remove(f".tasks/stop/{the_uuid}")
-        raise Exception("Stopped")
     ret_code = os.system(f"UUID={the_uuid} {python_path} main.py -O --h {h_w} --w {h_w} "
                          f"--image data/gradio/{the_uuid}_rgba.png "
                          f"--workspace results/gradio/{the_uuid}_dmtet --iters {iters} --save_mesh "
                          f"--dmtet --init_with results/gradio/{the_uuid}/checkpoints/df.pth")
-    if ret_code != 0:
-        os.remove(f".tasks/stop/{the_uuid}")
-        raise Exception("Error in stage4")
-    os.system(f"rm .tasks/running/{the_uuid}")
+    assert ret_code == 0, "Error in stage4"
     video_name = sorted([x for x in os.listdir(f"results/gradio/{the_uuid}_dmtet/results/") if x.endswith("_rgb.mp4")])[
         -1]
     full_video_name = os.path.join(f"results/gradio/{the_uuid}_dmtet/results/", video_name)
@@ -77,21 +64,11 @@ def stage4(h_w, iters, the_uuid):
 
 
 def kill_all():
-    os.makedirs(".tasks/stop", exist_ok=True)
-    os.system("mv .tasks/running/* .tasks/stop/")
     os.system("pkill -9 stable-dreamfusion")
-
-
-def kill(the_uuid):
-    if the_uuid and os.path.exists(f".tasks/running/{the_uuid}"):
-        os.makedirs(".tasks/stop", exist_ok=True)
-        os.system(f"mv .tasks/running/{the_uuid} .tasks/stop/")
-        os.system(f"pkill -9 stable-dreamfusion-{the_uuid}")
 
 
 def run_demo():
     device = f"cuda:{_GPU_INDEX}"
-    os.system("rm -rf .tasks")
     # load both base & refiner
     base = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
@@ -117,16 +94,15 @@ def run_demo():
                              "artstation and behance, Disney Pixar, "
                              "smooth lighting, smooth background color, "
                              "(front view:1.5), cute, hd, 8k", label="Prompt", lines=5)
-            btn_sdxl = gr.Button("Generate Image", variant="secondary")
             image = gr.Image(type='pil', label='Generated or Input image')
         with gr.Row():
             with gr.Column():
-                h_w = gr.Dropdown(choices=[32, 64, 128], value=64, label="h_w")
+                h_w = gr.Dropdown(choices=["32", "64", "128"], value="64", label="h_w")
                 iters = gr.Slider(minimum=1, maximum=15000, step=1000, value=5000, label="iters")
                 iters_dmtet = gr.Slider(minimum=1, maximum=15000, step=1000, value=10000, label="iters_dmtet")
             with gr.Column():
+                btn_sdxl = gr.Button("Generate Image", variant="secondary")
                 btn_dreamfusion = gr.Button("Generate 3D Object", variant="primary")
-                btn_kill = gr.Button("Kill (remember to refresh the browser after clicking)", variant="stop")
                 btn_kill_all = gr.Button("Kill All", variant="stop")
 
             image_nobg = gr.Image(image_mode='RGBA', label='Remove BG')
@@ -136,12 +112,15 @@ def run_demo():
             mesh = gr.File(label="Download 3D Object")
 
         btn_sdxl.click(fn=partial(stage1, base, refiner), inputs=[prompt], outputs=[image, the_uuid], queue=False)
-        btn_dreamfusion.click(fn=stage2, inputs=[image, the_uuid], outputs=[image_nobg, the_uuid], queue=False
-                              ).success(fn=stage3, inputs=[h_w, iters, the_uuid], outputs=[video]
-                                        ).success(fn=stage4, inputs=[h_w, iters_dmtet, the_uuid],
-                                                  outputs=[video_dmtet, mesh]
-                                                  )
-        btn_kill.click(fn=kill, inputs=[the_uuid], queue=False)
+        btn_dreamfusion.click(lambda: gr.update(interactive=False), outputs=btn_sdxl, queue=False
+                              ).success(fn=stage2, inputs=[image, the_uuid], outputs=[image_nobg, the_uuid]
+                                        ).success(fn=stage3, inputs=[h_w, iters, the_uuid], outputs=[video]
+                                                  ).success(fn=stage4, inputs=[h_w, iters_dmtet, the_uuid],
+                                                            outputs=[video_dmtet, mesh]
+                                                            ).success(fn=lambda: gr.update(interactive=True),
+                                                                      outputs=btn_sdxl,
+                                                                      queue=False
+                                                                      )
         btn_kill_all.click(fn=kill_all, queue=False)
 
     demo.launch(enable_queue=True, share=True, max_threads=1)
