@@ -95,7 +95,10 @@ def run_demo():
                                                                       outputs=btn_sdxl,
                                                                       queue=False
                                                                       )
-        btn_kill_all.click(fn=kill_all, queue=False)
+        btn_kill_all.click(fn=kill_all, queue=False).success(fn=lambda: gr.update(interactive=True),
+                                                             outputs=btn_sdxl,
+                                                             queue=False
+                                                             )
 
     demo.launch(share=True)
 
