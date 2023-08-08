@@ -1,8 +1,9 @@
 import torch
 import argparse
 import pandas as pd
-import sys
-
+import sys,os
+from setproctitle import setproctitle
+setproctitle(f'stable-dreamfusion-{os.getenv("UUID")}')
 from nerf.provider import NeRFDataset
 from nerf.utils import *
 
