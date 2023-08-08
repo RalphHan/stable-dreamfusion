@@ -53,7 +53,7 @@ def stage4(h_w, iters, the_uuid):
 
 
 def kill_all():
-    os.system("pkill -9 StableDreamfusion")
+    os.system("pkill -9 StableDream")
 
 
 def run_demo():

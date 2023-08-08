@@ -1,7 +1,7 @@
 import os
 import sys
 from setproctitle import setproctitle
-setproctitle('StableDreamfusion')
+setproctitle('StableDream')
 import cv2
 import argparse
 import numpy as np
