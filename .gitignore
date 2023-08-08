@@ -30,6 +30,7 @@ data/corgi*
 data/turtle*
 .idea/
 .tasks/
+tets/256_tets.npz
 
 # Only keep the original image, not the automatically-generated depth, normals, rgba
 data/baby_phoenix_on_ice_*

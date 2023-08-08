@@ -97,7 +97,7 @@ def run_demo():
             image = gr.Image(type='pil', label='Generated or Input image')
         with gr.Row():
             with gr.Column():
-                h_w = gr.Dropdown(choices=["32", "64", "128"], value="64", label="h_w")
+                h_w = gr.Dropdown(choices=["32", "64", "128", "256"], value="64", label="h_w")
                 iters = gr.Slider(minimum=1, maximum=15000, step=1000, value=5000, label="iters")
                 iters_dmtet = gr.Slider(minimum=1, maximum=15000, step=1000, value=10000, label="iters_dmtet")
             with gr.Column():
