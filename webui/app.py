@@ -41,7 +41,7 @@ def stage2(image, the_uuid):
 
 
 def stage3(h_w, iters, the_uuid):
-    ret_code = os.system(f"UUID={the_uuid} {python_path} main.py -O --h {h_w} --w {h_w} "
+    ret_code = os.system(f"{python_path} main.py -O --h {h_w} --w {h_w} "
                          f"--image data/gradio/{the_uuid}_rgba.png "
                          f"--workspace results/gradio/{the_uuid} --iters {iters} --save_mesh")
     assert ret_code == 0, "Error in stage3"
@@ -51,7 +51,7 @@ def stage3(h_w, iters, the_uuid):
 
 
 def stage4(h_w, iters, the_uuid):
-    ret_code = os.system(f"UUID={the_uuid} {python_path} main.py -O --h {h_w} --w {h_w} "
+    ret_code = os.system(f"{python_path} main.py -O --h {h_w} --w {h_w} "
                          f"--image data/gradio/{the_uuid}_rgba.png "
                          f"--workspace results/gradio/{the_uuid}_dmtet --iters {iters} --save_mesh "
                          f"--dmtet --init_with results/gradio/{the_uuid}/checkpoints/df.pth")
@@ -123,7 +123,7 @@ def run_demo():
                                                                       )
         btn_kill_all.click(fn=kill_all, queue=False)
 
-    demo.launch(enable_queue=True, share=True, max_threads=1)
+    demo.launch(share=True)
 
 
 if __name__ == '__main__':
