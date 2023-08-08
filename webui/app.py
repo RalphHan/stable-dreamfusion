@@ -36,7 +36,8 @@ def stage2(image, the_uuid):
         os.makedirs("data/gradio", exist_ok=True)
         the_uuid = str(uuid.uuid4())
         image.save(f"data/gradio/{the_uuid}.png")
-    os.system(f"{python_path} preprocess_image.py data/gradio/{the_uuid}.png")
+    ret_code = os.system(f"{python_path} preprocess_image.py data/gradio/{the_uuid}.png")
+    assert ret_code == 0, "Error in stage2"
     return f"data/gradio/{the_uuid}_rgba.png", the_uuid
 
 
