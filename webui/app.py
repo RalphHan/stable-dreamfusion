@@ -82,8 +82,8 @@ def run_demo():
 
             image_nobg = gr.Image(image_mode='RGBA', label='Remove BG')
         with gr.Row():
-            video = gr.Video(format="mp4", autoplay=True)
-            video_dmtet = gr.Video(format="mp4", autoplay=True)
+            video = gr.Video(format="mp4", label="Video", autoplay=True)
+            video_dmtet = gr.Video(format="mp4", label="Video Dmtet", autoplay=True)
             mesh = gr.File(label="Download 3D Object")
 
         btn_sdxl.click(fn=stage1, inputs=[prompt], outputs=[image, the_uuid], queue=False)
