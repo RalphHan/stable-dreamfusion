@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 import sys
 from setproctitle import setproctitle
-setproctitle('stable-dreamfusion')
+setproctitle('StableDreamfusion')
 from nerf.provider import NeRFDataset
 from nerf.utils import *
 

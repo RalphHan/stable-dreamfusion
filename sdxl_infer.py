@@ -1,8 +1,7 @@
 import torch
 from diffusers import DiffusionPipeline
 from setproctitle import setproctitle
-
-setproctitle('stable-dreamfusion')
+setproctitle('StableDreamfusion')
 import sys
 
 prompt = sys.argv[1]
