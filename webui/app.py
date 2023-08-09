@@ -20,8 +20,7 @@ def stage1(prompt):
 
 
 def stage2(image, the_uuid):
-    if the_uuid == "":
-        the_uuid = str(uuid.uuid4())
+    assert the_uuid != "", "Error in stage2"
     os.makedirs("data/gradio", exist_ok=True)
     image.save(f"data/gradio/{the_uuid}.png")
     ret_code = os.system(f"{python_path} preprocess_image.py data/gradio/{the_uuid}.png")
@@ -87,7 +86,7 @@ def run_demo():
             video = gr.Video(format="mp4", label="Video", autoplay=True)
             video_dmtet = gr.Video(format="mp4", label="Video Dmtet", autoplay=True)
             mesh = gr.File(label="Download 3D Object")
-
+        image.change(lambda: str(uuid.uuid4()), outputs=the_uuid, queue=False)
         btn_sdxl.click(fn=stage1, inputs=[prompt], outputs=[image, the_uuid], queue=False)
         btn_dreamfusion.click(lambda: gr.update(interactive=False), outputs=btn_sdxl, queue=False
                               ).success(fn=stage2, inputs=[image, the_uuid], outputs=[image_nobg, the_uuid]
@@ -103,7 +102,7 @@ def run_demo():
                                                              queue=False
                                                              )
 
-    demo.launch(share=True)
+    demo.launch(server_name="0.0.0.0")
 
 
 if __name__ == '__main__':
