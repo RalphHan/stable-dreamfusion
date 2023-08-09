@@ -4,10 +4,6 @@ import uuid
 
 _TITLE = '''Text-to-3D App built by SeedV Lab'''
 
-_DESCRIPTION = '''
-We use SDXL 1.0 to generate image, and use Zero123 to synthesize 3D object
-'''
-
 python_path = "venv_stable-dreamfusion/bin/python"
 
 
@@ -63,7 +59,6 @@ def run_demo():
     css = "#model-3d-out {height: 400px;} #plot-out {height: 450px;}"
     with gr.Blocks(title=_TITLE, css=css).queue(concurrency_count=1) as demo:
         gr.Markdown('# ' + _TITLE)
-        gr.Markdown(_DESCRIPTION)
         the_uuid = gr.State("")
         with gr.Row():
             prompt = gr.Text("zuckerberg, full body, blender 3d, "
