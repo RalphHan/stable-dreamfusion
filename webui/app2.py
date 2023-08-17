@@ -76,8 +76,10 @@ def run_demo():
                 btn_run = gr.Button("Generate 3D Object", variant="primary")
                 btn_kill_all = gr.Button("Kill All", variant="stop")
         with gr.Row():
-            video = gr.Video(format="mp4", label="Video", autoplay=True, width=400)
-            mesh = gr.File(label="Download 3D Object")
+            with gr.Column(scale=0.5):
+                video = gr.Video(format="mp4", label="Video", autoplay=True, width=200, height=200)
+            with gr.Column(scale=0.5):
+                mesh = gr.File(label="Download 3D Object")
         btn_run.click(fn=run, inputs=[prompt, h_w, iters, iters_dmtet], outputs=[video, mesh])
         btn_kill_all.click(fn=kill_all, queue=False)
 
