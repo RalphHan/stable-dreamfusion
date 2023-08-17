@@ -70,7 +70,7 @@ def run_demo():
             with gr.Column():
                 h_w = gr.Dropdown(choices=["32", "64", "128", "256"], value="64", label="h_w")
                 iters = gr.Slider(minimum=1, maximum=15000, step=1000, value=5000, label="iters")
-                iters_dmtet = gr.Slider(minimum=1, maximum=15000, step=1000, value=10000, label="iters_dmtet")
+                iters_dmtet = gr.Slider(minimum=1, maximum=15000, step=1000, value=5000, label="iters_dmtet")
             with gr.Column():
                 btn_sdxl = gr.Button("Generate Image", variant="secondary")
                 btn_dreamfusion = gr.Button("Generate 3D Object", variant="primary")
