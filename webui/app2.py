@@ -8,6 +8,7 @@ python_path = "venv_stable-dreamfusion/bin/python"
 
 
 def stage1(prompt, the_uuid):
+    prompt = prompt.replace("\"", "").replace("\'", "")
     os.makedirs("data/gradio", exist_ok=True)
     image_path = f"data/gradio/{the_uuid}.png"
     ret_code = os.system(f"{python_path} sdxl_infer.py \"{prompt}\" {image_path}")

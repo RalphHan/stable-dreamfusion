@@ -8,6 +8,7 @@ python_path = "venv_stable-dreamfusion/bin/python"
 
 
 def stage1(prompt):
+    prompt = prompt.replace("\"", "").replace("\'", "")
     os.makedirs("data/gradio", exist_ok=True)
     the_uuid = str(uuid.uuid4())
     save_path = f"data/gradio/{the_uuid}.png"
